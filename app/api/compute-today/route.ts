@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { getAdminSupabase } from '../../../lib/supabaseAdmin'
+import { getAdminSupabase } from '@/lib/supabaseAdmin'
 
 // Helper: local date string in America/Detroit as YYYY-MM-DD
 function detroitDateString(d = new Date()) {
