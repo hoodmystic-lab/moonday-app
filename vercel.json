@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/compute-today",
+      "schedule": "0 * * * *"
+    }
+  ]
+}
