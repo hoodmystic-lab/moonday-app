@@ -1,0 +1,9 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root { color-scheme: dark; }
+body { @apply bg-gradient-to-br from-bg1 to-bg2 text-slate-50 antialiased; }
+
+.container { @apply max-w-3xl mx-auto px-4; }
+.card { @apply bg-white/5 backdrop-blur rounded-2xl border border-white/10 shadow-xl; }
