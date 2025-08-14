@@ -1,16 +1,23 @@
+// app/api/compute-today/route.ts
 import { NextResponse } from 'next/server'
-import { getAdminSupabase } from '@/lib/supabaseAdmin'
+import { createClient } from '@supabase/supabase-js'
 
-// Helper: local date string in America/Detroit as YYYY-MM-DD
+// Server-only Supabase client (uses service role)
+function getAdminSupabase() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL!
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY! // DO NOT expose client-side
+  return createClient(url, serviceKey, { auth: { persistSession: false } })
+}
+
+// Local date string for America/Detroit
 function detroitDateString(d = new Date()) {
-  // Use Intl to format parts in Detroit tz
-  const fmt = new Intl.DateTimeFormat('en-CA', { // en-CA => YYYY-MM-DD
+  const fmt = new Intl.DateTimeFormat('en-CA', {
     timeZone: 'America/Detroit',
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',
   })
-  // @ts-ignore - formatToParts types
+  // @ts-ignore
   const parts = Object.fromEntries(fmt.formatToParts(d).map(p => [p.type, p.value]))
   return `${parts.year}-${parts.month}-${parts.day}`
 }
@@ -22,7 +29,6 @@ export async function GET(request: Request) {
 
   const today = detroitDateString()
 
-  // Check if we already have today
   const { data: existing, error: selErr } = await supabase
     .from('days')
     .select('*')
@@ -37,7 +43,6 @@ export async function GET(request: Request) {
     return NextResponse.json({ ok: true, message: 'Already computed', id: today })
   }
 
-  // 🔹 For now, insert a simple placeholder row (Step 2.5 will plug real astronomy)
   const payload = {
     id: today,
     tz: 'America/Detroit',
@@ -53,7 +58,6 @@ export async function GET(request: Request) {
       'Daily record placeholder. Astronomy compute will fill this automatically. Use this as a smoke test that cron + DB are wired.',
   }
 
-  // upsert: insert if missing, replace if force=1
   const { error: upsertErr } = await supabase
     .from('days')
     .upsert(payload, { onConflict: 'id' })
