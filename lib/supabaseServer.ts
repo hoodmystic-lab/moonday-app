@@ -1,22 +1,9 @@
-import { cookies } from 'next/headers'
-import { createServerClient as createSSRClient } from '@supabase/ssr'
+// lib/supabaseServer.ts
+import { createClient } from '@supabase/supabase-js'
 
 export function createServerClient() {
-  const cookieStore = cookies()
-  const supabase = createSSRClient({
-    cookies: {
-      get(name: string) {
-        return cookieStore.get(name)?.value
-      },
-      set(name: string, value: string, options: any) {
-        cookieStore.set(name, value, options)
-      },
-      remove(name: string, options: any) {
-        cookieStore.set(name, '', { ...options, maxAge: 0 })
-      },
-    },
-    supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    supabaseKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-  })
-  return supabase
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL!
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  // For server components, no session persistence is needed
+  return createClient(url, key, { auth: { persistSession: false } })
 }
